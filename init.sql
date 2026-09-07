@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL, -- bcrypt hash
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'doctor', 'receptionist')),
+    refresh_token TEXT,
+    token_invalidated_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
