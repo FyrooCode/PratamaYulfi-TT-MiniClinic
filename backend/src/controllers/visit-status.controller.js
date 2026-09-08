@@ -44,9 +44,9 @@ const updateVisitStatus = async (req, res, next) => {
     // 2. Update status
     const updateResult = await db.query(
       `UPDATE registrations
-       SET status = $1
+       SET status = $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2
-       RETURNING id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status, created_at`,
+       RETURNING id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status, created_at, updated_at`,
       [cleanStatus, registrationId]
     );
 

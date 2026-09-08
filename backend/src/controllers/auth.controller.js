@@ -52,7 +52,7 @@ const login = async (req, res, next) => {
 
     // Save refresh token in database & reset token_invalidated_at for fresh session
     await db.query(
-      'UPDATE users SET refresh_token = $1, token_invalidated_at = NULL WHERE id = $2',
+      'UPDATE users SET refresh_token = $1, token_invalidated_at = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [refreshToken, user.id]
     );
 
@@ -125,7 +125,7 @@ const refreshToken = async (req, res, next) => {
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
-    await db.query('UPDATE users SET refresh_token = $1 WHERE id = $2', [
+    await db.query('UPDATE users SET refresh_token = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [
       newRefreshToken,
       user.id,
     ]);
@@ -177,12 +177,12 @@ const logout = async (req, res, next) => {
 
     if (userId) {
       await db.query(
-        'UPDATE users SET refresh_token = NULL, token_invalidated_at = CURRENT_TIMESTAMP WHERE id = $1',
+        'UPDATE users SET refresh_token = NULL, token_invalidated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = $1',
         [userId]
       );
     } else if (refreshTokenCookie) {
       await db.query(
-        'UPDATE users SET refresh_token = NULL, token_invalidated_at = CURRENT_TIMESTAMP WHERE refresh_token = $1',
+        'UPDATE users SET refresh_token = NULL, token_invalidated_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE refresh_token = $1',
         [refreshTokenCookie]
       );
     }
