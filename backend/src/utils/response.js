@@ -36,6 +36,23 @@ const sendError = (res, message = 'An error occurred', errors = {}, statusCode =
 };
 
 /**
+ * Send standard paginated response
+ * @param {import('express').Response} res
+ * @param {string} [message='Success']
+ * @param {any[]} [data=[]]
+ * @param {object} [pagination={}]
+ * @param {number} [statusCode=200]
+ */
+const sendPaginated = (res, message = 'Success', data = [], pagination = {}, statusCode = 200) => {
+  return res.status(statusCode).json({
+    success: true,
+    message,
+    data,
+    pagination,
+  });
+};
+
+/**
  * Custom application error with HTTP status code and field-level validation errors
  */
 class AppError extends Error {
@@ -49,6 +66,7 @@ class AppError extends Error {
 
 module.exports = {
   sendSuccess,
+  sendPaginated,
   sendError,
   AppError,
 };
