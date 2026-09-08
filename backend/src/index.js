@@ -7,6 +7,7 @@ const db = require('./config/db');
 const { sendSuccess } = require('./utils/response');
 const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
+const patientRoutes = require('./routes/patient.routes');
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -56,6 +57,7 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/patients', patientRoutes);
 
 // 404 and Global Error Handling
 app.use(notFoundHandler);
@@ -68,19 +70,11 @@ if (require.main === module) {
     console.log(`Mini Clinic Backend Server running on port ${PORT}`);
     console.log(`Health Check URL: http://localhost:${PORT}/api/health`);
     console.log(`Auth Endpoints:   http://localhost:${PORT}/api/auth`);
+    console.log(`Patient Endpoints:http://localhost:${PORT}/api/patients`);
     console.log(`====================================================`);
 
-    // Verify Database Connection on startup & ensure schema is up-to-date
-    const isConnected = await db.testConnection();
-    if (isConnected) {
-      try {
-        await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS refresh_token TEXT;');
-        await db.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS token_invalidated_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;');
-        console.log('[Database Schema] Columns users.refresh_token and users.token_invalidated_at are verified.');
-      } catch (err) {
-        console.error('[Database Schema Warning] Failed checking auth columns:', err.message);
-      }
-    }
+    // Verify Database Connection on startup
+    await db.testConnection();
   });
 
   // Graceful Shutdown
