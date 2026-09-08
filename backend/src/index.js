@@ -9,6 +9,7 @@ const healthRoutes = require('./routes/health.routes');
 const authRoutes = require('./routes/auth.routes');
 const patientRoutes = require('./routes/patient.routes');
 const registrationRoutes = require('./routes/registration.routes');
+const queueRoutes = require('./routes/queue.routes');
 const { errorHandler, notFoundHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -60,6 +61,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/registrations', registrationRoutes);
+app.use('/api/queues', queueRoutes);
 
 // 404 and Global Error Handling
 app.use(notFoundHandler);
@@ -74,6 +76,7 @@ if (require.main === module) {
     console.log(`Auth Endpoints:   http://localhost:${PORT}/api/auth`);
     console.log(`Patient Endpoints:http://localhost:${PORT}/api/patients`);
     console.log(`Registration Endpoints: http://localhost:${PORT}/api/registrations`);
+    console.log(`Queue Endpoints:  http://localhost:${PORT}/api/queues`);
     console.log(`====================================================`);
 
     // Verify Database Connection on startup

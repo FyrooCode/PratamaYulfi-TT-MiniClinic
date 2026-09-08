@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'doctor', 'receptionist')),
     refresh_token TEXT,
     token_invalidated_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------------------------------------------------------
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS patients (
     dob DATE NOT NULL,
     phone VARCHAR(20),
     address TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------------------------------------------------------
@@ -49,7 +51,8 @@ CREATE TABLE IF NOT EXISTS registrations (
     payment_type VARCHAR(30) NOT NULL, -- BPJS / Umum / Asuransi
     initial_complaint TEXT,
     status VARCHAR(20) DEFAULT 'Menunggu' CHECK (status IN ('Menunggu', 'Check In', 'Pemeriksaan', 'Selesai', 'Batal')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------------------------------------------------------
@@ -59,8 +62,9 @@ CREATE TABLE IF NOT EXISTS queues (
     id SERIAL PRIMARY KEY,
     registration_id INT NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
     queue_number VARCHAR(10) NOT NULL, -- Contoh format: A001, A002
-    status VARCHAR(20) DEFAULT 'Menunggu' CHECK (status IN ('Menunggu', 'Dipanggil', 'Sedang Diperiksa', 'Selesai', 'Batal')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    status VARCHAR(20) DEFAULT 'Menunggu' CHECK (status IN ('Menunggu', 'Check In', 'Pemeriksaan', 'Selesai', 'Batal')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------------------------------------------------------
@@ -81,7 +85,8 @@ CREATE TABLE IF NOT EXISTS medical_records (
     plan TEXT NOT NULL,               -- P: Rencana terapi & penanganan
     medical_actions TEXT,             -- Tindakan medis yang diberikan
     prescription TEXT,                -- Resep obat untuk pasien (catatan umum resep)
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------------------------------------------------------
@@ -95,7 +100,8 @@ CREATE TABLE IF NOT EXISTS prescriptions (
     frequency VARCHAR(50) NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
     instructions TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------------------------------------------------------
@@ -110,9 +116,39 @@ CREATE INDEX IF NOT EXISTS idx_registrations_visit_date ON registrations(visit_d
 CREATE INDEX IF NOT EXISTS idx_registrations_status ON registrations(status);
 CREATE INDEX IF NOT EXISTS idx_queues_registration_id ON queues(registration_id);
 CREATE INDEX IF NOT EXISTS idx_queues_status ON queues(status);
+CREATE INDEX IF NOT EXISTS idx_queues_updated_at ON queues(updated_at);
 CREATE INDEX IF NOT EXISTS idx_medical_records_patient_id ON medical_records(patient_id);
 CREATE INDEX IF NOT EXISTS idx_medical_records_registration_id ON medical_records(registration_id);
 CREATE INDEX IF NOT EXISTS idx_prescriptions_medical_record_id ON prescriptions(medical_record_id);
+
+-- -----------------------------------------------------------------------------
+-- Function & Trigger untuk Otomatisasi Kolom updated_at
+-- -----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_patients_updated_at ON patients;
+CREATE TRIGGER update_patients_updated_at BEFORE UPDATE ON patients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_registrations_updated_at ON registrations;
+CREATE TRIGGER update_registrations_updated_at BEFORE UPDATE ON registrations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_queues_updated_at ON queues;
+CREATE TRIGGER update_queues_updated_at BEFORE UPDATE ON queues FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_medical_records_updated_at ON medical_records;
+CREATE TRIGGER update_medical_records_updated_at BEFORE UPDATE ON medical_records FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_prescriptions_updated_at ON prescriptions;
+CREATE TRIGGER update_prescriptions_updated_at BEFORE UPDATE ON prescriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- =============================================================================
 -- DATA DUMMY (SEED DATA)

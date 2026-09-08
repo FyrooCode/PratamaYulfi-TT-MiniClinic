@@ -8,8 +8,9 @@ const { authenticate, authorize } = require('../middlewares/auth.middleware');
 // All registration routes require authentication
 router.use(authenticate);
 
-// 1. Helper Dropdown Dokter (Must be declared before /:id)
+// 1. Helper Dropdown Dokter & Poli (Must be declared before /:id)
 router.get('/doctors', authorize('admin', 'receptionist'), registrationController.getDoctorsDropdown);
+router.get('/departments', authorize('admin', 'receptionist'), registrationController.getDepartments);
 
 // 2. Read Endpoints (Admin, Receptionist, Doctor)
 router.get('/', authorize('admin', 'receptionist', 'doctor'), registrationController.getAllRegistrations);

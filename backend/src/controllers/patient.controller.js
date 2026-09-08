@@ -266,9 +266,9 @@ const updatePatient = async (req, res, next) => {
     // 6. Execute update (medical_record_number remains IMMUTABLE)
     const updateResult = await db.query(
       `UPDATE patients
-       SET nik = $1, name = $2, gender = $3, dob = $4, phone = $5, address = $6
+       SET nik = $1, name = $2, gender = $3, dob = $4, phone = $5, address = $6, updated_at = CURRENT_TIMESTAMP
        WHERE id = $7
-       RETURNING id, medical_record_number, nik, name, gender, dob, phone, address, created_at`,
+       RETURNING id, medical_record_number, nik, name, gender, dob, phone, address, created_at, updated_at`,
       [cleanNik, cleanName, cleanGender, cleanDob, cleanPhone, cleanAddress, patientId]
     );
 

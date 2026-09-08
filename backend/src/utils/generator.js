@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { getDepartmentPrefix } = require('../constants/clinic');
 
 /**
  * Generate sequential Medical Record Number (Nomor Rekam Medis)
@@ -56,7 +57,35 @@ const generateRegistrationNumber = async (dbClient = null) => {
   return `REG-${dateStr}-${paddedSequence}`;
 };
 
+/**
+ * Generate sequential Queue Number (Nomor Antrean) per department for today
+ * Format: [PREFIX][XXX] (e.g. A001, B001, C001, D001)
+ * 
+ * @param {string} [clinicDepartment='Poli Umum']
+ * @param {import('pg').PoolClient|null} [dbClient=null] Optional active pool client
+ * @returns {Promise<string>} Formatted Queue Number
+ */
+const generateQueueNumber = async (clinicDepartment = 'Poli Umum', dbClient = null) => {
+  const prefix = getDepartmentPrefix(clinicDepartment);
+  const pattern = `${prefix}%`;
+
+  const queryRunner = dbClient || db;
+  const sql = `
+    SELECT COALESCE(MAX(CAST(SUBSTRING(queue_number FROM 2 FOR 3) AS INTEGER)), 0) AS last_number
+    FROM queues
+    WHERE queue_number LIKE $1 AND created_at::DATE = CURRENT_DATE
+  `;
+
+  const result = await queryRunner.query(sql, [pattern]);
+  const lastNumber = parseInt(result.rows[0].last_number, 10) || 0;
+  const nextNumber = lastNumber + 1;
+  const paddedSequence = String(nextNumber).padStart(3, '0');
+
+  return `${prefix}${paddedSequence}`;
+};
+
 module.exports = {
   generateMedicalRecordNumber,
   generateRegistrationNumber,
+  generateQueueNumber,
 };

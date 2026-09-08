@@ -1,5 +1,6 @@
 const db = require('../config/db');
-const { generateRegistrationNumber } = require('../utils/generator');
+const { generateRegistrationNumber, generateQueueNumber } = require('../utils/generator');
+const { CLINIC_DEPARTMENTS } = require('../constants/clinic');
 const { sendSuccess, sendPaginated, sendError } = require('../utils/response');
 
 /**
@@ -30,6 +31,19 @@ const getDoctorsDropdown = async (req, res, next) => {
 
     const result = await db.query(sql);
     return sendSuccess(res, 'Doctors list retrieved successfully', result.rows, 200);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Get clinic departments list for dropdown
+ * @route   GET /api/registrations/departments
+ * @access  Protected (admin, receptionist)
+ */
+const getDepartments = async (req, res, next) => {
+  try {
+    return sendSuccess(res, 'Departments retrieved successfully', CLINIC_DEPARTMENTS, 200);
   } catch (error) {
     next(error);
   }
@@ -344,56 +358,72 @@ const createRegistration = async (req, res, next) => {
     // 8. Hardcoded Initial Status
     const initialStatus = 'Menunggu';
 
-    // 9. Generate Registration Number & Insert with Retry Safeguard
+    // 9. Execute in a Database Transaction: Insert Registration & Generate Queue Ticket
+    const client = await db.pool.connect();
     let newRegistration = null;
-    let attempts = 0;
+    let newQueue = null;
 
-    while (attempts < 3) {
-      try {
-        const registrationNumber = await generateRegistrationNumber();
-        const insertSql = `
-          INSERT INTO registrations (
-            registration_number,
-            patient_id,
-            doctor_id,
-            clinic_department,
-            visit_date,
-            payment_type,
-            initial_complaint,
-            status
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-          RETURNING *
-        `;
+    try {
+      await client.query('BEGIN');
 
-        const insertResult = await db.query(insertSql, [
-          registrationNumber,
-          parsedPatientId,
-          parsedDoctorId,
-          clinic_department.trim(),
-          cleanVisitDate,
-          payment_type.trim(),
-          initial_complaint && typeof initial_complaint === 'string' ? initial_complaint.trim() : null,
-          initialStatus,
-        ]);
+      const registrationNumber = await generateRegistrationNumber(client);
+      const insertSql = `
+        INSERT INTO registrations (
+          registration_number,
+          patient_id,
+          doctor_id,
+          clinic_department,
+          visit_date,
+          payment_type,
+          initial_complaint,
+          status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *
+      `;
 
-        newRegistration = insertResult.rows[0];
-        break;
-      } catch (err) {
-        if (err.code === '23505' && err.detail?.includes('registration_number')) {
-          attempts++;
-          continue;
-        }
-        throw err;
-      }
+      const insertResult = await client.query(insertSql, [
+        registrationNumber,
+        parsedPatientId,
+        parsedDoctorId,
+        clinic_department.trim(),
+        cleanVisitDate,
+        payment_type.trim(),
+        initial_complaint && typeof initial_complaint === 'string' ? initial_complaint.trim() : null,
+        initialStatus,
+      ]);
+
+      newRegistration = insertResult.rows[0];
+
+      // Generate Queue Ticket
+      const queueNumber = await generateQueueNumber(clinic_department.trim(), client);
+      const queueInsertSql = `
+        INSERT INTO queues (
+          registration_id,
+          queue_number,
+          status
+        ) VALUES ($1, $2, 'Menunggu')
+        RETURNING id, queue_number, status, created_at
+      `;
+
+      const queueResult = await client.query(queueInsertSql, [
+        newRegistration.id,
+        queueNumber,
+      ]);
+
+      newQueue = queueResult.rows[0];
+
+      await client.query('COMMIT');
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
     }
 
-    if (!newRegistration) {
-      return sendError(res, 'Failed to generate a unique registration number. Please try again.', {}, 500);
-    }
-
-    // Return with structured patient and doctor info
+    // Return with structured patient, doctor, and queue info
     const responseData = {
       ...newRegistration,
+      queue: newQueue,
       patient: patientCheck.rows[0],
       doctor: {
         id: doctorCheck.rows[0].id,
@@ -490,7 +520,8 @@ const updateRegistration = async (req, res, next) => {
           clinic_department = $2,
           payment_type = $3,
           visit_date = $4,
-          initial_complaint = $5
+          initial_complaint = $5,
+          updated_at = CURRENT_TIMESTAMP
       WHERE id = $6
       RETURNING *
     `;
@@ -555,6 +586,7 @@ const deleteRegistration = async (req, res, next) => {
 
 module.exports = {
   getDoctorsDropdown,
+  getDepartments,
   getAllRegistrations,
   getRegistrationById,
   createRegistration,
