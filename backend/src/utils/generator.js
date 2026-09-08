@@ -26,6 +26,37 @@ const generateMedicalRecordNumber = async (dbClient = null) => {
   return `RM-${currentYear}-${paddedSequence}`;
 };
 
+/**
+ * Generate sequential Registration Number (Nomor Registrasi)
+ * Format: REG-YYYYMMDD-XXX (e.g. REG-20260908-001)
+ * 
+ * @param {import('pg').PoolClient|null} [dbClient=null] Optional active pool client
+ * @returns {Promise<string>} Formatted Registration Number
+ */
+const generateRegistrationNumber = async (dbClient = null) => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const dateStr = `${year}${month}${day}`;
+  const pattern = `REG-${dateStr}-%`;
+
+  const queryRunner = dbClient || db;
+  const sql = `
+    SELECT COALESCE(MAX(CAST(SUBSTRING(registration_number FROM 14 FOR 3) AS INTEGER)), 0) AS last_number
+    FROM registrations
+    WHERE registration_number LIKE $1
+  `;
+
+  const result = await queryRunner.query(sql, [pattern]);
+  const lastNumber = parseInt(result.rows[0].last_number, 10) || 0;
+  const nextNumber = lastNumber + 1;
+  const paddedSequence = String(nextNumber).padStart(3, '0');
+
+  return `REG-${dateStr}-${paddedSequence}`;
+};
+
 module.exports = {
   generateMedicalRecordNumber,
+  generateRegistrationNumber,
 };
