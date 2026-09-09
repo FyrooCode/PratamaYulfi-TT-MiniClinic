@@ -2,7 +2,7 @@ const db = require('../config/db');
 const { sendSuccess, sendPaginated, sendError } = require('../utils/response');
 const { generateQueueNumber } = require('../utils/generator');
 
-const VALID_QUEUE_STATUSES = ['Menunggu', 'Check In', 'Pemeriksaan', 'Selesai', 'Batal'];
+const VALID_QUEUE_STATUSES = ['Menunggu', 'Check In', 'Pemeriksaan', 'Selesai'];
 
 /**
  * @desc    Public Display Queues for Lobby TV Monitor (No Auth Required)
