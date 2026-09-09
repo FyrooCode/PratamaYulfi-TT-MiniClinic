@@ -1,0 +1,936 @@
+{
+  "info": {
+    "_postman_id": "a2dab8ed-c0a0-4a02-92e0-6a4b78faadca",
+    "name": "Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39192768",
+    "_collection_link": "https://go.postman.co/collection/39192768-a2dab8ed-c0a0-4a02-92e0-6a4b78faadca?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "item": [
+            {
+              "name": "Login Admin",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (pm.response.code === 200) {\n    const res = pm.response.json();\n    pm.environment.set(\"token\", res.data.accessToken);\n    console.log(\"Token berhasil disimpan otomatis\");\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@clinic.com\",\n  \"password\": \"password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "Login-Admin"
+              },
+              "response": []
+            },
+            {
+              "name": "Login Dokter",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"dr.budi@clinic.com\",\n  \"password\": \"password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login Resepsionis",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"resepsionis@clinic.com\",\n  \"password\": \"password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Login Info",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/me",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Role Test",
+          "item": [
+            {
+              "name": "Dokter to admin",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.sendRequest({\n    url: pm.environment.get(\"base_url\") + \"/auth/login\",\n    method: \"POST\",\n    header: { \"Content-Type\": \"application/json\" },\n    body: {\n        mode: \"raw\",\n        raw: JSON.stringify({ email: \"dr.budi@clinic.com\", password: \"password123\" })\n    }\n}, function (err, res) {\n    const token = res.json().data?.token;\n    if (token) pm.environment.set(\"token\", token);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Should return 403 Forbidden\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/test/admin",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "test",
+                    "admin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Resepsionis to admin",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.sendRequest({\n    url: pm.environment.get(\"base_url\") + \"/auth/login\",\n    method: \"POST\",\n    header: { \"Content-Type\": \"application/json\" },\n    body: {\n        mode: \"raw\",\n        raw: JSON.stringify({ email: \"resepsionis@clinic.com\", password: \"password123\" })\n    }\n}, function (err, res) {\n    const token = res.json().data?.token;\n    if (token) pm.environment.set(\"token\", token);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Should return 403 Forbidden\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/test/admin",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "test",
+                    "admin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Dokter to resepsionis",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.sendRequest({\n    url: pm.environment.get(\"base_url\") + \"/auth/login\",\n    method: \"POST\",\n    header: { \"Content-Type\": \"application/json\" },\n    body: {\n        mode: \"raw\",\n        raw: JSON.stringify({ email: \"dr.budi@clinic.com\", password: \"password123\" })\n    }\n}, function (err, res) {\n    const token = res.json().data?.token;\n    if (token) pm.environment.set(\"token\", token);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Should return 403 Forbidden\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/test/receptionist",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "test",
+                    "receptionist"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Resepsionis to dokter",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.sendRequest({\n    url: pm.environment.get(\"base_url\") + \"/auth/login\",\n    method: \"POST\",\n    header: { \"Content-Type\": \"application/json\" },\n    body: {\n        mode: \"raw\",\n        raw: JSON.stringify({ email: \"resepsionis@clinic.com\", password: \"password123\" })\n    }\n}, function (err, res) {\n    const token = res.json().data?.token;\n    if (token) pm.environment.set(\"token\", token);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Should return 403 Forbidden\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/auth/test/doctor",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "test",
+                    "doctor"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {\n    pm.environment.unset(\"token\");\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Master Pasien",
+      "item": [
+        {
+          "name": "Get List Patient",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/patients?page=1&limit=10&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/patients/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "patients",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"3201019908070005\",\n  \"name\": \"Siti Nurhaliza\",\n  \"gender\": \"P\",\n  \"dob\": \"1998-08-17\",\n  \"phone\": \"081399887766\",\n  \"address\": \"Jl. Melati No. 23, Jakarta Selatan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/patients",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "patients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Siti Nurhaliza Putri\",\n  \"phone\": \"081311223344\",\n  \"address\": \"Jl. Mawar No. 10, Jakarta Selatan\",\n  \"medical_record_number\": \"HACK-9999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/patients/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "patients",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/patients/3",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "patients",
+                "3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Registrasi Pasien",
+      "item": [
+        {
+          "name": "Get Doctors Dropdown",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/registrations/doctors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations",
+                "doctors"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patient Registration",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": 2,\n  \"doctor_id\": 2,\n  \"clinic_department\": \"Poli Umum\",\n  \"payment_type\": \"BPJS\",\n  \"visit_date\": \"2026-09-08\",\n  \"initial_complaint\": \"Demam tinggi sejak 2 hari yang lalu dan pusing\",\n  \"status\": \"Selesai\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/registrations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get List Registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/registrations?page=1&limit=&status=&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Registration by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/registrations/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Registration",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clinic_department\": \"Poli Penyakit Dalam\",\n  \"payment_type\": \"Umum\",\n  \"initial_complaint\": \"Demam tinggi disertai mual\",\n  \"registration_number\": \"REG-HACK-000\",\n  \"patient_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/registrations/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Visit Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Check In\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/registrations/2/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations",
+                "2",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/registrations/5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "registrations",
+                "5"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Antrian",
+      "item": [
+        {
+          "name": "Get Display Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/queues/display",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "queues",
+                "display"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Master Queue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/queues?page=1&limit=10&status=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "queues"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Queue Ticket",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registration_id\": 6\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/queues",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "queues"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Call Queue by ID",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/queues/3/call",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "queues",
+                "3",
+                "call"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Queue Status",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Pemeriksaan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/queues/21/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "queues",
+                "21",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Call Next Queue",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/queues/next",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "queues",
+                "next"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pemeriksaan Dokter",
+      "item": [
+        {
+          "name": "Create SOAP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"registration_id\": 2,\n  \"subjective\": \"Gigi geraham kiri bawah berdenyut sejak 3 hari yang lalu, ngilu menusuk saat minum air dingin.\",\n  \"systolic_bp\": 118,\n  \"diastolic_bp\": 78,\n  \"temperature\": 36.6,\n  \"weight\": 55.0,\n  \"height\": 162.0,\n  \"assessment\": \"Pulpitis Reversibel pada gigi 36\",\n  \"plan\": \"Preparasi kavitas gigi, penambalan sementara, serta edukasi kebersihan rongga mulut.\",\n  \"medical_actions\": \"Pembersihan karang gigi regio kiri bawah dan aplikasi tumpatan sementara.\",\n  \"prescription\": \"Asam Mefenamat 500mg 3x1 dan Amoxicillin 500mg 3x1 dihabiskan.\",\n  \"medicines\": [\n    {\n      \"medicine_name\": \"Asam Mefenamat\",\n      \"dosage\": \"500 mg\",\n      \"frequency\": \"3x1 tablet\",\n      \"quantity\": 10,\n      \"instructions\": \"Diminum sesudah makan bila nyeri timbul\"\n    },\n    {\n      \"medicine_name\": \"Amoxicillin\",\n      \"dosage\": \"500 mg\",\n      \"frequency\": \"3x1 tablet\",\n      \"quantity\": 15,\n      \"instructions\": \"Diminum rutin sampai habis sesudah makan\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/medical-records",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medical-records"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Medical History Record by PatientID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/medical-records/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medical-records",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Medical Records Detail by MRID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/medical-records/detail/4",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medical-records",
+                "detail",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Post Prescriptions",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"medical_record_id\": 4,\n  \"medicine_name\": \"Vitamin C 500mg\",\n  \"dosage\": \"500 mg\",\n  \"frequency\": \"1x1 tablet\",\n  \"quantity\": 10,\n  \"instructions\": \"Diminum pagi hari sesudah makan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/prescriptions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "prescriptions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Prescriptions by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/prescriptions/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "prescriptions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/dashboard/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "dashboard",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

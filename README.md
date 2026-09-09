@@ -1,125 +1,166 @@
-# Mini Clinic Information System - Boilerplate Monorepo
-
-Boilerplate aplikasi full-stack monorepo untuk technical test **Mini Clinic Information System** menggunakan Docker Compose, Node.js Express, PostgreSQL, dan React (Vite + Tailwind CSS).
+# Mini Clinic Information System
 
 ---
 
-## Tech Stack
-- **Database**: PostgreSQL 15 Alpine (`db`)
-- **Backend**: Node.js 20 Express.js (`backend`)
-  - Modular architecture (`routes`, `controllers`, `config`, `middlewares`)
-  - PostgreSQL Driver: `pg` (Pool)
-  - Security & Auth: `bcrypt`, `jsonwebtoken`, `cors`, `dotenv`
-- **Frontend**: React 18 SPA (`frontend`)
-  - Build Tool: Vite
-  - Styling: Tailwind CSS
-  - Routing: React Router DOM (v6)
-  - Web Server: Nginx Alpine (Multi-stage Docker build dengan fallback SPA routing)
+## Daftar Isi
+1. [Entity Relationship Diagram (ERD)](#entity-relationship-diagram-erd)
+2. [Cara Instalasi & Menjalankan Aplikasi](#cara-instalasi--menjalankan-aplikasi)
+3. [Akun Login (Demo Seeder)](#akun-login-demo-seeder)
+4. [Konfigurasi File .env](#konfigurasi-file-env)
+5. [Migrasi & Seeding Database](#migrasi--seeding-database)
+6. [Postman Collection](#postman-collection)
+7. [Struktur Project](#struktur-project)
 
 ---
 
-## Struktur Direktori
-```
-mini-clinic-information-system/
-├── docker-compose.yml          # Konfigurasi 3 service (db, backend, frontend)
-├── .env.example                # Template variabel environment
-├── .env                        # Environment file aktif
-├── .gitignore                  # Git ignore root
-├── init.sql                    # DDL schema awal & seed data PostgreSQL
-├── README.md
-├── backend/
-│   ├── Dockerfile
-│   ├── .dockerignore
-│   ├── package.json
-│   └── src/
-│       ├── config/
-│       │   └── db.js           # PostgreSQL connection pool
-│       ├── controllers/
-│       │   └── health.controller.js
-│       ├── routes/
-│       │   └── health.routes.js # /api/health
-│       ├── middlewares/
-│       │   └── errorHandler.js
-│       └── index.js            # Server entrypoint
-└── frontend/
-    ├── Dockerfile              # Multi-stage build (Node build -> Nginx)
-    ├── .dockerignore
-    ├── nginx.conf              # Nginx try_files SPA config
-    ├── package.json
-    ├── vite.config.js
-    ├── tailwind.config.js
-    ├── postcss.config.js
-    ├── index.html
-    └── src/
-        ├── index.css
-        ├── App.jsx             # UI Dashboard & API connectivity check
-        └── main.jsx
-```
+## Entity Relationship Diagram (ERD)
+
+![Entity Relationship Diagram](./erd.dbdiagram.png)
 
 ---
 
-## Akun Bawaan (Default Seed Users)
-Semua akun bawaan menggunakan password: `password123`
+## Cara Instalasi & Menjalankan Aplikasi
 
-| Peran (Role) | Nama Lengkap | Email | Password |
-|---|---|---|---|
-| `admin` | Administrator Klinik | `admin@clinic.com` | `password123` |
-| `doctor` | dr. Budi Santoso, Sp.PD | `dr.budi@clinic.com` | `password123` |
-| `receptionist` | Siti Rahmawati | `resepsionis@clinic.com` | `password123` |
+Pastikan Docker Engine dan Docker Compose sudah terpasang di sistem.
 
----
+1. **Clone repository dan masuk ke direktori:**
+   ```bash
+   git clone <URL_REPOSITORY>
+   cd mini-clinic-information-system
+   ```
 
-## Skema Database (`init.sql`)
-1. **`users`**: Akun user, role (`admin`, `doctor`, `receptionist`), password hash bcrypt.
-2. **`patients`**: Data induk pasien (No. RM unik, NIK unik, nama, jenis kelamin `L`/`P`, tanggal lahir, alamat).
-3. **`registrations`**: Pendaftaran kunjungan ke poli, dokter pemeriksa, penjamin (`BPJS`/`Umum`/`Asuransi`), status (`Menunggu`, `Check In`, `Pemeriksaan`, `Selesai`, `Batal`).
-4. **`queues`**: Antrean pendaftaran (`A001`, `A002`), relasi ke `registrations`.
-5. **`medical_records`**: Pemeriksaan SOAP dokter (Subjective, Objective tanda vital, Assessment, Plan, Tindakan medis, Resep obat).
-6. **`prescriptions`**: Rincian resep obat terstruktur (Nama obat, dosis, frekuensi, kuantitas, instruksi minum) relasi ke `medical_records(id)`.
+2. **Siapkan file `.env`:**
+   ```bash
+   cp .env.example .env
+   ```
 
----
+3. **Jalankan via Docker Compose:**
+   ```bash
+   docker compose up -d --build
+   ```
 
-## Standar Format JSON Response API (`backend/src/utils/response.js`)
-Seluruh endpoint backend menggunakan format seragam:
-- **Success (HTTP 200/201)**:
-  ```json
-  {
-    "success": true,
-    "message": "Pesan sukses",
-    "data": {}
-  }
-  ```
-- **Error (HTTP 4xx/5xx)**:
-  ```json
-  {
-    "success": false,
-    "message": "Pesan error",
-    "errors": {}
-  }
-  ```
+### Akses Layanan:
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Backend API**: [http://localhost:5000/api](http://localhost:5000/api)
+- **Health Check**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
+- **PostgreSQL**: Port `5432`
 
----
-
-## Cara Menjalankan
-
-Cukup jalankan satu perintah berikut di dalam direktori `mini-clinic-information-system`:
-
-```bash
-docker compose up -d --build
-```
-
-Setelah container berjalan:
-- **Frontend**: Buka di browser [http://localhost:3000](http://localhost:3000)
-- **Backend Health Check**: Buka di browser / curl [http://localhost:5000/api/health](http://localhost:5000/api/health)
-- **Database PostgreSQL**: Terbuka di `localhost:5432` (User: `postgres`, Password: `postgres`, DB: `mini_clinic_db`)
-
-### Mematikan Service
+### Menghentikan Container:
 ```bash
 docker compose down
 ```
 
-Untuk mereset database beserta volumenya (sehingga `init.sql` dieksekusi ulang):
-```bash
-docker compose down -v
+---
+
+## Akun Login (Demo Seeder)
+
+Default password untuk seluruh akun: `password123`
+
+| Role | Email | Password | Akses |
+|---|---|---|---|
+| **Admin** | `admin@clinic.com` | `password123` | Seluruh Modul |
+| **Doctor** | `dr.budi@clinic.com` | `password123` | Dashboard & Pemeriksaan Pasien (SOAP) |
+| **Receptionist** | `resepsionis@clinic.com` | `password123` | Dashboard, Pasien, Pendaftaran, Antrean |
+
+---
+
+## Konfigurasi File .env
+
+File template `.env.example`:
+
+```env
+# Database Configuration (PostgreSQL)
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=mini_clinic_db
+DB_HOST=mini_clinic_db
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=mini_clinic_db
+
+# Backend Configuration
+PORT=5000
+NODE_ENV=development
+JWT_SECRET=super_secret_mini_clinic_jwt_key_2026
+JWT_ACCESS_SECRET=super_secret_mini_clinic_jwt_access_key_2026
+JWT_REFRESH_SECRET=super_secret_mini_clinic_jwt_refresh_key_2026
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+CLIENT_URL=http://localhost:3000
+
+# Frontend Configuration
+FRONTEND_PORT=3000
+VITE_API_URL=http://localhost:5000/api
 ```
 
+---
+
+## Migrasi & Seeding Database
+
+Inisialisasi skema tabel dan seed data otomatis dieksekusi dari skrip `init.sql` saat container PostgreSQL pertama kali dibuat.
+
+Untuk melakukan **reset / re-seed database** ke kondisi awal:
+```bash
+docker compose down -v && docker compose up -d
+```
+
+---
+
+## Postman Collection
+
+File Postman Collection tersedia di root folder project:
+- **`Backend.postman_collection.json`**
+
+Import file tersebut ke aplikasi Postman untuk menguji seluruh endpoint backend API (Auth, Dashboard, Patients, Registrations, Queues, Medical Records).
+
+---
+
+## Struktur Project
+
+```
+mini-clinic-information-system/
+├── docker-compose.yml              # Orkestrasi container (db, backend, frontend)
+├── init.sql                        # Skema DDL & seed data PostgreSQL
+├── Backend.postman_collection.json # Export Postman collection API
+├── erd.dbdiagram.png               # Diagram relasi database (ERD)
+├── .env.example                    # Template konfigurasi environment
+├── .env                            # File konfigurasi environment aktif
+├── .gitignore                      # Git ignore file
+├── README.md                       # Dokumentasi project
+│
+├── backend/                        # REST API Service (Node.js & Express)
+│   ├── Dockerfile                  # Container build backend
+│   ├── package.json
+│   └── src/
+│       ├── index.js                # Server entry point & Express setup
+│       ├── config/
+│       │   └── db.js               # Koneksi pool PostgreSQL (pg)
+│       ├── constants/
+│       │   └── clinic.js           # Konstanta roles, poli, dan visit/queue status
+│       ├── controllers/            # Controller endpoints (auth, patient, registration, queue, medical-record, dashboard)
+│       ├── middlewares/            # JWT authentication & RBAC authorization
+│       ├── routes/                 # Express router endpoints
+│       └── utils/                  # Generator No. RM/Antrean, JWT helpers, JSON response format
+│
+└── frontend/                       # Web Client Application (React 18 & Vite)
+    ├── Dockerfile                  # Multi-stage build (Vite build -> Nginx Alpine)
+    ├── nginx.conf                  # Nginx configuration untuk SPA routing
+    ├── package.json
+    ├── vite.config.js              # Vite configuration & path alias (@/ -> src/)
+    ├── tailwind.config.js          # Konfigurasi Tailwind CSS & design tokens
+    ├── index.html
+    └── src/
+        ├── App.jsx                 # Root application component
+        ├── main.jsx                # React DOM entry point
+        ├── index.css               # Styling global Tailwind CSS
+        ├── api/                    # Axios instances & API modules
+        ├── components/             # Reusable UI components (Radix UI / Shadcn)
+        ├── context/                # Global state (AuthContext & NotificationContext)
+        ├── features/               # Modul fitur spesifik (auth, examinations, patients, queues, registrations)
+        ├── hooks/                  # Custom React hooks (useAuth, use-mobile)
+        ├── layouts/                # Layout dashboard (AppSidebar & header)
+        ├── lib/                    # Helper utility (cn / classnames merge)
+        ├── pages/                  # Halaman aplikasi (dashboard, patients, registrations, queues, examinations)
+        └── routes/                 # Protected routes & AppRoutes configuration
+```
