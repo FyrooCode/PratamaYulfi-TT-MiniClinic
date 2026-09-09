@@ -65,7 +65,7 @@ const getDisplayQueues = async (req, res, next) => {
         AND q.created_at::DATE = CURRENT_DATE
         ${deptFilter}
       ORDER BY q.id ASC
-      LIMIT 5
+      LIMIT 10
     `;
 
     const upcomingResult = await db.query(upcomingSql, queryParams);
