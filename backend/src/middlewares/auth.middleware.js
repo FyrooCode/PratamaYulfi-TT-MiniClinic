@@ -91,5 +91,6 @@ const authorize = (...allowedRoles) => {
 
 module.exports = {
   authenticate,
+  verifyToken: authenticate,
   authorize,
 };
