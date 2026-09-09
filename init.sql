@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS queues (
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS medical_records (
     id SERIAL PRIMARY KEY,
-    registration_id INT NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
+    registration_id INT UNIQUE NOT NULL REFERENCES registrations(id) ON DELETE CASCADE,
     patient_id INT NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
     doctor_id INT REFERENCES users(id) ON DELETE SET NULL,
     subjective TEXT NOT NULL,         -- S: Anamnesis / Keluhan utama pasien
