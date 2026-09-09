@@ -10,6 +10,7 @@ import CreatePatientPage from '@/pages/patients/CreatePatientPage';
 import EditPatientPage from '@/pages/patients/EditPatientPage';
 import RegistrationsPage from '@/pages/registrations/RegistrationsPage';
 import CreateRegistrationPage from '@/pages/registrations/CreateRegistrationPage';
+import QueuesPage from '@/pages/queues/QueuesPage';
 
 export default function AppRoutes() {
   return (
@@ -28,7 +29,8 @@ export default function AppRoutes() {
           {/* Registrations Module */}
           <Route path="/registrations" element={<RegistrationsPage />} />
           <Route path="/registrations/new" element={<CreateRegistrationPage />} />
-          <Route path="/queues" element={<div className="p-4 bg-white rounded-lg border">Modul Antrean (Segera Hadir)</div>} />
+          {/* Queues Module */}
+          <Route path="/queues" element={<QueuesPage />} />
           <Route path="/examination" element={<div className="p-4 bg-white rounded-lg border">Modul Pemeriksaan Dokter (SOAP) (Segera Hadir)</div>} />
         </Route>
       </Route>

@@ -156,40 +156,142 @@ CREATE TRIGGER update_prescriptions_updated_at BEFORE UPDATE ON prescriptions FO
 
 -- 1. Default Users (Password semua akun: 'password123')
 -- Hash bcrypt 10 rounds: $2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe
-INSERT INTO users (name, email, password, role) VALUES
-('Administrator Klinik', 'admin@clinic.com', '$2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe', 'admin'),
-('dr. Budi Santoso, Sp.PD', 'dr.budi@clinic.com', '$2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe', 'doctor'),
-('Siti Rahmawati (Resepsionis)', 'resepsionis@clinic.com', '$2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe', 'receptionist')
-ON CONFLICT (email) DO NOTHING;
+INSERT INTO users (id, name, email, password, role) VALUES
+(1, 'Administrator Klinik', 'admin@clinic.com', '$2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe', 'admin'),
+(2, 'dr. Budi Santoso, Sp.PD', 'dr.budi@clinic.com', '$2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe', 'doctor'),
+(3, 'Siti Rahmawati (Resepsionis)', 'resepsionis@clinic.com', '$2b$10$bsR6OKBXJdeiMISUGdO2mufdKfRELk3Ibvl1p6J9JbDh8hDqZPkEe', 'receptionist')
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    email = EXCLUDED.email,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role;
 
--- 2. Dummy Pasien Lengkap dengan No. Rekam Medis (RM) & NIK
-INSERT INTO patients (medical_record_number, nik, name, gender, dob, phone, address) VALUES
-('RM-2026-0001', '3201012345670001', 'Ahmad Fauzi', 'L', '1990-05-14', '081234567890', 'Jl. Sudirman No. 45, Jakarta Pusat'),
-('RM-2026-0002', '3201012345670002', 'Dewi Anggraini', 'P', '1995-11-20', '081298765432', 'Jl. Thamrin No. 12, Jakarta Pusat'),
-('RM-2026-0003', '3201012345670003', 'Rian Pratama', 'L', '2001-02-08', '085712345678', 'Jl. Merdeka Barat No. 8, Jakarta Pusat')
-ON CONFLICT (medical_record_number) DO NOTHING;
+SELECT setval(pg_get_serial_sequence('users', 'id'), (SELECT COALESCE(MAX(id), 1) FROM users));
+
+-- 2. Dummy Pasien Lengkap dengan Format No. Rekam Medis (RM-YYYY-XXXX) & NIK
+INSERT INTO patients (id, medical_record_number, nik, name, gender, dob, phone, address) VALUES
+(1, 'RM-2026-0001', '3201012345670001', 'Ahmad Fauzi', 'L', '1990-05-14', '081234567890', 'Jl. Sudirman No. 45, Jakarta Pusat'),
+(2, 'RM-2026-0002', '3201012345670002', 'Dewi Anggraini', 'P', '1995-11-20', '081298765432', 'Jl. Thamrin No. 12, Jakarta Pusat'),
+(3, 'RM-2026-0003', '3201012345670003', 'Rian Pratama', 'L', '2001-02-08', '085712345678', 'Jl. Merdeka Barat No. 8, Jakarta Pusat'),
+(4, 'RM-2026-0004', '3201012345670004', 'Siti Aminah', 'P', '1988-08-15', '081345678901', 'Jl. Gatot Subroto No. 20, Jakarta Selatan'),
+(5, 'RM-2026-0005', '3201012345670005', 'Budi Prasetyo', 'L', '1992-03-22', '081987654321', 'Jl. Rasuna Said No. 5, Jakarta Selatan')
+ON CONFLICT (id) DO UPDATE SET
+    medical_record_number = EXCLUDED.medical_record_number,
+    nik = EXCLUDED.nik,
+    name = EXCLUDED.name,
+    gender = EXCLUDED.gender,
+    dob = EXCLUDED.dob,
+    phone = EXCLUDED.phone,
+    address = EXCLUDED.address;
+
+SELECT setval(pg_get_serial_sequence('patients', 'id'), (SELECT COALESCE(MAX(id), 1) FROM patients));
 
 -- 3. Registrasi & Antrean Awal Hari Ini (CURRENT_DATE)
+-- Format Registrasi: REG-YYYYMMDD-XXX
+-- Format Antrean: A (Poli Umum), B (Poli Gigi), C (Poli Anak), D (Poli Penyakit Dalam)
+
 -- Pasien 1 (Ahmad Fauzi) - Poli Umum - Selesai Diperiksa
 INSERT INTO registrations (id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status) VALUES
 (1, 'REG-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-001', 1, 2, 'Poli Umum', CURRENT_DATE, 'BPJS', 'Demam tinggi dan sakit kepala sejak 2 hari yang lalu', 'Selesai')
-ON CONFLICT (registration_number) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+    registration_number = EXCLUDED.registration_number,
+    patient_id = EXCLUDED.patient_id,
+    doctor_id = EXCLUDED.doctor_id,
+    clinic_department = EXCLUDED.clinic_department,
+    visit_date = EXCLUDED.visit_date,
+    payment_type = EXCLUDED.payment_type,
+    initial_complaint = EXCLUDED.initial_complaint,
+    status = EXCLUDED.status;
 
-INSERT INTO queues (registration_id, queue_number, status) VALUES
-(1, 'A001', 'Selesai')
-ON CONFLICT DO NOTHING;
+INSERT INTO queues (id, registration_id, queue_number, status) VALUES
+(1, 1, 'A001', 'Selesai')
+ON CONFLICT (id) DO UPDATE SET
+    registration_id = EXCLUDED.registration_id,
+    queue_number = EXCLUDED.queue_number,
+    status = EXCLUDED.status;
 
 -- Pasien 2 (Dewi Anggraini) - Poli Gigi - Menunggu Antrean
 INSERT INTO registrations (id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status) VALUES
 (2, 'REG-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-002', 2, 2, 'Poli Gigi', CURRENT_DATE, 'Umum', 'Sakit gigi geraham belakang kiri terasa ngilu saat minum dingin', 'Menunggu')
-ON CONFLICT (registration_number) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+    registration_number = EXCLUDED.registration_number,
+    patient_id = EXCLUDED.patient_id,
+    doctor_id = EXCLUDED.doctor_id,
+    clinic_department = EXCLUDED.clinic_department,
+    visit_date = EXCLUDED.visit_date,
+    payment_type = EXCLUDED.payment_type,
+    initial_complaint = EXCLUDED.initial_complaint,
+    status = EXCLUDED.status;
 
-INSERT INTO queues (registration_id, queue_number, status) VALUES
-(2, 'A002', 'Menunggu')
-ON CONFLICT DO NOTHING;
+INSERT INTO queues (id, registration_id, queue_number, status) VALUES
+(2, 2, 'B001', 'Menunggu')
+ON CONFLICT (id) DO UPDATE SET
+    registration_id = EXCLUDED.registration_id,
+    queue_number = EXCLUDED.queue_number,
+    status = EXCLUDED.status;
 
--- Menyesuaikan sequence ID registrations agar auto-increment berjalan normal setelah seed
+-- Pasien 3 (Rian Pratama) - Poli Umum - Check In (Sedang Dipanggil di Loket)
+INSERT INTO registrations (id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status) VALUES
+(3, 'REG-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-003', 3, 2, 'Poli Umum', CURRENT_DATE, 'Umum', 'Batuk kering dan tenggorokan gatal sejak 3 hari', 'Check In')
+ON CONFLICT (id) DO UPDATE SET
+    registration_number = EXCLUDED.registration_number,
+    patient_id = EXCLUDED.patient_id,
+    doctor_id = EXCLUDED.doctor_id,
+    clinic_department = EXCLUDED.clinic_department,
+    visit_date = EXCLUDED.visit_date,
+    payment_type = EXCLUDED.payment_type,
+    initial_complaint = EXCLUDED.initial_complaint,
+    status = EXCLUDED.status;
+
+INSERT INTO queues (id, registration_id, queue_number, status) VALUES
+(3, 3, 'A002', 'Check In')
+ON CONFLICT (id) DO UPDATE SET
+    registration_id = EXCLUDED.registration_id,
+    queue_number = EXCLUDED.queue_number,
+    status = EXCLUDED.status;
+
+-- Pasien 4 (Siti Aminah) - Poli Anak - Menunggu Antrean
+INSERT INTO registrations (id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status) VALUES
+(4, 'REG-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-004', 4, 2, 'Poli Anak', CURRENT_DATE, 'BPJS', 'Pemeriksaan tumbuh kembang dan imunisasi lanjutan balita', 'Menunggu')
+ON CONFLICT (id) DO UPDATE SET
+    registration_number = EXCLUDED.registration_number,
+    patient_id = EXCLUDED.patient_id,
+    doctor_id = EXCLUDED.doctor_id,
+    clinic_department = EXCLUDED.clinic_department,
+    visit_date = EXCLUDED.visit_date,
+    payment_type = EXCLUDED.payment_type,
+    initial_complaint = EXCLUDED.initial_complaint,
+    status = EXCLUDED.status;
+
+INSERT INTO queues (id, registration_id, queue_number, status) VALUES
+(4, 4, 'C001', 'Menunggu')
+ON CONFLICT (id) DO UPDATE SET
+    registration_id = EXCLUDED.registration_id,
+    queue_number = EXCLUDED.queue_number,
+    status = EXCLUDED.status;
+
+-- Pasien 5 (Budi Prasetyo) - Poli Umum - Menunggu Antrean
+INSERT INTO registrations (id, registration_number, patient_id, doctor_id, clinic_department, visit_date, payment_type, initial_complaint, status) VALUES
+(5, 'REG-' || TO_CHAR(CURRENT_DATE, 'YYYYMMDD') || '-005', 5, 2, 'Poli Umum', CURRENT_DATE, 'Asuransi', 'Kontrol tekanan darah rutin dan cek kolesterol', 'Menunggu')
+ON CONFLICT (id) DO UPDATE SET
+    registration_number = EXCLUDED.registration_number,
+    patient_id = EXCLUDED.patient_id,
+    doctor_id = EXCLUDED.doctor_id,
+    clinic_department = EXCLUDED.clinic_department,
+    visit_date = EXCLUDED.visit_date,
+    payment_type = EXCLUDED.payment_type,
+    initial_complaint = EXCLUDED.initial_complaint,
+    status = EXCLUDED.status;
+
+INSERT INTO queues (id, registration_id, queue_number, status) VALUES
+(5, 5, 'A003', 'Menunggu')
+ON CONFLICT (id) DO UPDATE SET
+    registration_id = EXCLUDED.registration_id,
+    queue_number = EXCLUDED.queue_number,
+    status = EXCLUDED.status;
+
 SELECT setval(pg_get_serial_sequence('registrations', 'id'), (SELECT COALESCE(MAX(id), 1) FROM registrations));
+SELECT setval(pg_get_serial_sequence('queues', 'id'), (SELECT COALESCE(MAX(id), 1) FROM queues));
 
 -- 4. Riwayat Rekam Medis (SOAP) Contoh untuk Pasien 1 (History Selesai)
 INSERT INTO medical_records (
@@ -222,15 +324,30 @@ INSERT INTO medical_records (
     'Tirah baring (bed rest), edukasi hidrasi oral 2-3 liter per hari, kompres hangat bila demam > 38°C, kontrol kembali bila demam menetap > 3 hari.',
     'Pemeriksaan fisik tanda vital lengkap, palpasi abdomen (tidak ada hepatosplenomegali), uji torniquet negatif.',
     '1. Paracetamol 500 mg tab No. X - S 3 dd tab 1 (prn demam)\n2. Multivitamin B Complex & Vit C tab No. X - S 1 dd tab 1 (pc)\n3. Antasida Doen tab No. X - S 3 dd tab 1 (ac)'
-) ON CONFLICT (id) DO NOTHING;
+) ON CONFLICT (id) DO UPDATE SET
+    subjective = EXCLUDED.subjective,
+    systolic_bp = EXCLUDED.systolic_bp,
+    diastolic_bp = EXCLUDED.diastolic_bp,
+    temperature = EXCLUDED.temperature,
+    weight = EXCLUDED.weight,
+    height = EXCLUDED.height,
+    assessment = EXCLUDED.assessment,
+    plan = EXCLUDED.plan,
+    medical_actions = EXCLUDED.medical_actions,
+    prescription = EXCLUDED.prescription;
 
 SELECT setval(pg_get_serial_sequence('medical_records', 'id'), (SELECT COALESCE(MAX(id), 1) FROM medical_records));
 
 -- 5. Resep Obat Terstruktur untuk Rekam Medis Pasien 1 (medical_record_id: 1)
-INSERT INTO prescriptions (medical_record_id, medicine_name, dosage, frequency, quantity, instructions) VALUES
-(1, 'Paracetamol', '500 mg', '3x1 tablet', 10, 'Diminum sesudah makan bila demam atau nyeri'),
-(1, 'Multivitamin B-Complex & Vit C', '1 tablet', '1x1 tablet', 10, 'Diminum di pagi hari sesudah makan'),
-(1, 'Antasida Doen', '1 tablet kunyah', '3x1 tablet', 10, 'Dikunyah 30 menit sebelum makan')
-ON CONFLICT DO NOTHING;
+INSERT INTO prescriptions (id, medical_record_id, medicine_name, dosage, frequency, quantity, instructions) VALUES
+(1, 1, 'Paracetamol', '500 mg', '3x1 tablet', 10, 'Diminum sesudah makan bila demam atau nyeri'),
+(2, 1, 'Multivitamin B-Complex & Vit C', '1 tablet', '1x1 tablet', 10, 'Diminum di pagi hari sesudah makan'),
+(3, 1, 'Antasida Doen', '1 tablet kunyah', '3x1 tablet', 10, 'Dikunyah 30 menit sebelum makan')
+ON CONFLICT (id) DO UPDATE SET
+    medicine_name = EXCLUDED.medicine_name,
+    dosage = EXCLUDED.dosage,
+    frequency = EXCLUDED.frequency,
+    quantity = EXCLUDED.quantity,
+    instructions = EXCLUDED.instructions;
 
 SELECT setval(pg_get_serial_sequence('prescriptions', 'id'), (SELECT COALESCE(MAX(id), 1) FROM prescriptions));
