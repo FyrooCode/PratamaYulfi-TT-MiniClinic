@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const { sendSuccess, sendError } = require('../utils/response');
 
-const VALID_STATUSES = ['Menunggu', 'Check In', 'Pemeriksaan', 'Selesai', 'Batal'];
+const VALID_STATUSES = ['Menunggu', 'Check In', 'Pemeriksaan', 'Selesai'];
 
 /**
  * @desc    Update visit status for a patient registration (Centralized State Transition)

@@ -148,6 +148,7 @@ const getAllRegistrations = async (req, res, next) => {
         r.initial_complaint,
         r.status,
         r.created_at,
+        q.queue_number,
         p.name AS patient_name,
         p.medical_record_number,
         p.nik AS patient_nik,
@@ -159,6 +160,7 @@ const getAllRegistrations = async (req, res, next) => {
       FROM registrations r
       JOIN patients p ON r.patient_id = p.id
       LEFT JOIN users u ON r.doctor_id = u.id
+      LEFT JOIN queues q ON q.registration_id = r.id
       ${whereSql}
       ORDER BY r.id DESC
       LIMIT $${limitIndex} OFFSET $${offsetIndex}
@@ -169,6 +171,8 @@ const getAllRegistrations = async (req, res, next) => {
     const formattedData = dataResult.rows.map((row) => ({
       id: row.id,
       registration_number: row.registration_number,
+      queue_number: row.queue_number || null,
+      queue: row.queue_number ? { queue_number: row.queue_number } : null,
       clinic_department: row.clinic_department,
       visit_date: row.visit_date,
       payment_type: row.payment_type,
@@ -234,6 +238,7 @@ const getRegistrationById = async (req, res, next) => {
         r.initial_complaint,
         r.status,
         r.created_at,
+        q.queue_number,
         p.name AS patient_name,
         p.medical_record_number,
         p.nik AS patient_nik,
@@ -246,6 +251,7 @@ const getRegistrationById = async (req, res, next) => {
       FROM registrations r
       JOIN patients p ON r.patient_id = p.id
       LEFT JOIN users u ON r.doctor_id = u.id
+      LEFT JOIN queues q ON q.registration_id = r.id
       WHERE r.id = $1
     `;
 
@@ -258,6 +264,8 @@ const getRegistrationById = async (req, res, next) => {
     const data = {
       id: row.id,
       registration_number: row.registration_number,
+      queue_number: row.queue_number || null,
+      queue: row.queue_number ? { queue_number: row.queue_number } : null,
       clinic_department: row.clinic_department,
       visit_date: row.visit_date,
       payment_type: row.payment_type,
