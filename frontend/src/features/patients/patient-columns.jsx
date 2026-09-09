@@ -40,11 +40,11 @@ export const createPatientColumns = ({ onView, onEdit, onDelete, canEdit = false
 
     columnHelper.accessor('name', {
       header: ({ column }) => (
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 text-sm font-semibold text-slate-700 hover:text-slate-900 -ml-2"
+            className="h-8 text-sm font-semibold text-slate-700 hover:text-slate-900"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             Nama Pasien
@@ -53,7 +53,7 @@ export const createPatientColumns = ({ onView, onEdit, onDelete, canEdit = false
         </div>
       ),
       cell: ({ row }) => (
-        <div className="font-semibold text-sm text-slate-900 leading-snug">
+        <div className="font-semibold text-sm text-slate-900 leading-snug text-center">
           {row.getValue('name')}
         </div>
       ),

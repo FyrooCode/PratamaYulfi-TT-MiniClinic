@@ -25,11 +25,11 @@ export const createRegistrationColumns = ({ onView, onCancel, canMutate = false 
   return columnHelper.columns([
     columnHelper.accessor('registration_number', {
       header: ({ column }) => (
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 text-sm font-semibold text-slate-700 hover:text-slate-900 -ml-2"
+            className="h-8 text-sm font-semibold text-slate-700 hover:text-slate-900"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             No. Registrasi
@@ -38,7 +38,7 @@ export const createRegistrationColumns = ({ onView, onCancel, canMutate = false 
         </div>
       ),
       cell: ({ row }) => (
-        <div className="text-left font-medium text-sm text-slate-700">
+        <div className="text-center font-medium text-sm text-slate-700">
           {row.getValue('registration_number')}
         </div>
       ),
@@ -46,11 +46,11 @@ export const createRegistrationColumns = ({ onView, onCancel, canMutate = false 
 
     columnHelper.accessor((row) => row.patient?.name || '', {
       id: 'patient_name',
-      header: () => <div className="text-left font-semibold text-sm text-slate-700">Pasien</div>,
+      header: () => <div className="text-center font-semibold text-sm text-slate-700">Pasien</div>,
       cell: ({ row }) => {
         const patient = row.original.patient;
         return (
-          <div className="space-y-0.5">
+          <div className="space-y-0.5 text-center">
             <div className="font-semibold text-sm text-slate-900 leading-snug">
               {patient?.name || '-'}
             </div>
@@ -63,9 +63,9 @@ export const createRegistrationColumns = ({ onView, onCancel, canMutate = false 
     }),
 
     columnHelper.accessor('clinic_department', {
-      header: () => <div className="text-left font-semibold text-sm text-slate-700">Poli Tujuan</div>,
+      header: () => <div className="text-center font-semibold text-sm text-slate-700">Poli Tujuan</div>,
       cell: ({ row }) => (
-        <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+        <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-700">
           <Building2 className="h-4 w-4 text-slate-400 shrink-0" />
           <span>{row.getValue('clinic_department')}</span>
         </div>
@@ -74,16 +74,16 @@ export const createRegistrationColumns = ({ onView, onCancel, canMutate = false 
 
     columnHelper.accessor((row) => row.doctor?.name || '', {
       id: 'doctor_name',
-      header: () => <div className="text-left font-semibold text-sm text-slate-700">Dokter Pemeriksa</div>,
+      header: () => <div className="text-center font-semibold text-sm text-slate-700">Dokter Pemeriksa</div>,
       cell: ({ row }) => {
         const docName = row.original.doctor?.name;
         return docName ? (
-          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+          <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-700">
             <Stethoscope className="h-4 w-4 text-slate-400 shrink-0" />
             <span>{docName}</span>
           </div>
         ) : (
-          <div className="text-slate-400 font-medium text-sm">-</div>
+          <div className="text-center text-slate-400 font-medium text-sm">-</div>
         );
       },
     }),
@@ -133,7 +133,7 @@ export const createRegistrationColumns = ({ onView, onCancel, canMutate = false 
           <div className="flex justify-center">
             <Badge
               variant="outline"
-              className="bg-teal-50 text-teal-800 border-teal-200 text-xs font-semibold px-2.5 py-0.5 font-mono"
+              className="bg-teal-50 text-teal-800 border-teal-200 text-xs font-semibold px-2.5 py-0.5"
             >
               {qNum}
             </Badge>

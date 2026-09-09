@@ -43,6 +43,11 @@ export const registrationsApi = {
     return res.data;
   },
 
+  updateStatus: async (id, status) => {
+    const res = await api.patch(`/registrations/${id}/status`, { status });
+    return res.data;
+  },
+
   getDoctors: async () => {
     const res = await api.get('/registrations/doctors');
     return res.data;

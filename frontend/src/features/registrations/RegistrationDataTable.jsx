@@ -58,7 +58,7 @@ export function RegistrationDataTable({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-12 px-4 text-sm font-semibold text-slate-700 select-none"
+                    className="h-12 px-4 text-sm font-semibold text-slate-700 select-none text-center"
                   >
                     {header.isPlaceholder ? null : (
                       <table.FlexRender header={header} />
@@ -88,7 +88,7 @@ export function RegistrationDataTable({
                   className="border-slate-100 hover:bg-slate-50/80 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-slate-700">
+                    <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-slate-700 text-center">
                       <table.FlexRender cell={cell} />
                     </TableCell>
                   ))}
@@ -122,20 +122,22 @@ export function RegistrationDataTable({
           <div className="flex items-center gap-4">
             {/* Rows Per Page Selector */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-500 font-medium">Baris per halaman:</span>
+              <span className="text-sm font-medium text-slate-600 whitespace-nowrap">
+                Baris per halaman:
+              </span>
               <Select
-                value={String(pageSize)}
+                value={String(pageSize || 10)}
                 onValueChange={(val) => onPageSizeChange && onPageSizeChange(Number(val))}
               >
-                <SelectTrigger className="h-8 w-[72px] text-sm border-slate-200 bg-white">
+                <SelectTrigger className="h-8 w-[76px] text-sm font-medium border-slate-200 shadow-none bg-white">
                   <SelectValue placeholder={String(pageSize)} />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-slate-200">
+                <SelectContent align="end">
                   <SelectGroup>
-                    <SelectItem value="10" className="text-sm">10</SelectItem>
-                    <SelectItem value="25" className="text-sm">25</SelectItem>
-                    <SelectItem value="50" className="text-sm">50</SelectItem>
-                    <SelectItem value="100" className="text-sm">100</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -143,7 +145,7 @@ export function RegistrationDataTable({
 
             {/* Shadcn Icons-Only Pagination */}
             <Pagination className="mx-0 w-auto">
-              <PaginationContent className="gap-1">
+              <PaginationContent className="gap-1.5">
                 <PaginationItem>
                   <PaginationPrevious
                     onClick={() => {

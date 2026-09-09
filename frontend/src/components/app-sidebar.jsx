@@ -6,7 +6,6 @@ import {
   ClipboardList,
   UserCheck,
   Stethoscope,
-  Tv,
   Hospital,
 } from 'lucide-react';
 import { NavMain } from '@/components/nav-main';
@@ -60,7 +59,7 @@ export function AppSidebar({ ...props }) {
       );
     }
 
-    if (user?.role === 'doctor') {
+    if (user?.role === 'doctor' || user?.role === 'admin') {
       items.push({
         title: 'Pemeriksaan (SOAP)',
         url: '/examination',
@@ -96,23 +95,6 @@ export function AppSidebar({ ...props }) {
       <SidebarContent>
         {/* Menu Navigasi Utama Tanpa Nested */}
         <NavMain items={navItems} />
-
-        {/* Akses Cepat Layar Antrean Publik */}
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupLabel>Tampilan Publik</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Layar Antrean TV">
-                  <a href="/queue-display" target="_blank" rel="noreferrer">
-                    <Tv className="h-4 w-4" />
-                    <span>Layar Antrean TV</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter>

@@ -26,7 +26,7 @@ import {
 import { Loader2 } from 'lucide-react';
 import { features } from '@/features/patients/data-table-features';
 
-export function QueueDataTable({
+export function ExaminationDataTable({
   columns,
   data,
   pagination,
@@ -51,14 +51,14 @@ export function QueueDataTable({
     <div className="space-y-4">
       {/* Table Container */}
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-none">
-        <Table>
+        <Table className="w-full min-w-[1100px]">
           <TableHeader className="bg-slate-50/80">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent border-slate-200">
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="h-12 px-6 text-sm font-semibold text-slate-700 select-none text-center"
+                    className="h-12 px-4 text-sm font-semibold text-slate-700 select-none whitespace-nowrap"
                   >
                     {header.isPlaceholder ? null : (
                       <table.FlexRender header={header} />
@@ -72,10 +72,12 @@ export function QueueDataTable({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-48 text-center">
+                <TableCell colSpan={columns.length} className="h-44 text-center">
                   <div className="flex flex-col items-center justify-center gap-2.5 text-slate-500 text-sm">
-                    <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-                    <span className="font-medium">Memuat data antrean pasien...</span>
+                    <Loader2 className="h-6 w-6 animate-spin text-teal-600" />
+                    <span className="font-medium">
+                      Memuat data pemeriksaan pasien...
+                    </span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -83,11 +85,10 @@ export function QueueDataTable({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                  className="hover:bg-slate-50/70 border-slate-200 transition-colors"
+                  className="border-slate-100 hover:bg-slate-50/80 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-6 py-4 text-sm text-center">
+                    <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap text-center">
                       <table.FlexRender cell={cell} />
                     </TableCell>
                   ))}
@@ -95,15 +96,12 @@ export function QueueDataTable({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-44 text-center text-slate-500 text-sm"
-                >
-                  <div className="flex flex-col items-center justify-center gap-1.5 py-6">
-                    <p className="font-semibold text-slate-700">Tidak ada data antrean</p>
-                    <p className="text-xs text-slate-400">
-                      Belum ada pasien yang sedang mengantre dengan filter yang dipilih.
-                    </p>
+                <TableCell colSpan={columns.length} className="h-40 text-center">
+                  <div className="text-sm font-medium text-slate-500">
+                    Tidak ada pasien dalam daftar pemeriksaan.
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">
+                    Coba sesuaikan filter status atau kata kunci pencarian.
                   </div>
                 </TableCell>
               </TableRow>
@@ -124,7 +122,7 @@ export function QueueDataTable({
             <span className="text-slate-400 mx-1.5">•</span>{' '}
             Total{' '}
             <span className="font-semibold text-slate-900 mx-0.5">{pagination.totalData || 0}</span>{' '}
-            data antrean
+            data pemeriksaan
           </div>
 
           {/* Right side: Rows per page + Shadcn Pagination Icons Only */}
