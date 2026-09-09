@@ -44,7 +44,7 @@ export function CurrentServingCard({
               NOMOR ANTREAN
             </span>
 
-            <div className="text-6xl sm:text-7xl md:text-8xl font-black font-mono tracking-wider text-teal-800 my-2 drop-shadow-xs select-none">
+            <div className="text-5xl sm:text-6xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight whitespace-nowrap text-teal-800 my-2 drop-shadow-xs select-none">
               {formattedNumber}
             </div>
 
@@ -65,7 +65,7 @@ export function CurrentServingCard({
             </div>
             <div>
               <p className="text-xs text-amber-800 font-medium">Sedang Menunggu</p>
-              <p className="text-xl font-bold font-mono text-amber-950">
+              <p className="text-xl font-bold text-amber-950">
                 {totalWaiting}
               </p>
             </div>
@@ -77,7 +77,7 @@ export function CurrentServingCard({
             </div>
             <div>
               <p className="text-xs text-teal-800 font-medium">Total Dilayani Hari Ini</p>
-              <p className="text-xl font-bold font-mono text-teal-950">
+              <p className="text-xl font-bold text-teal-950">
                 {totalServedToday}
               </p>
             </div>

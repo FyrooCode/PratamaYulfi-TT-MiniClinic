@@ -86,7 +86,7 @@ export function QueueWaitingList({
                   {/* Left: Queue Number & Details */}
                   <div className="flex items-center gap-3.5 min-w-0">
                     {/* Number Badge */}
-                    <div className="flex items-center justify-center min-w-[76px] px-3 py-2 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 font-mono font-black text-base tracking-wide shrink-0">
+                    <div className="flex items-center justify-center min-w-[76px] px-3 py-2 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 font-black text-base tracking-wide whitespace-nowrap shrink-0">
                       {formattedNum}
                     </div>
 

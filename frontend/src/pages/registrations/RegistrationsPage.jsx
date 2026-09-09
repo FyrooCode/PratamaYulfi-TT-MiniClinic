@@ -294,7 +294,7 @@ export default function RegistrationsPage() {
 
               <div className="flex justify-between items-center py-0.5">
                 <span className="text-slate-500">No. Antrean Poli</span>
-                <span className="font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded text-xs font-mono">
+                <span className="font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded text-xs">
                   {selectedReg.queue?.queue_number || selectedReg.queue_number || '-'}
                 </span>
               </div>

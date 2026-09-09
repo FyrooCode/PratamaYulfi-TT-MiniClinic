@@ -55,14 +55,14 @@ export const createQueueColumns = ({
   updatingId = null,
 }) => {
   return columnHelper.columns([
-    // 1. Nomor Antrean (Rata Kiri, font mono tebal)
+    // 1. Nomor Antrean
     columnHelper.accessor('queue_number', {
       header: ({ column }) => (
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 text-sm font-semibold text-slate-700 hover:text-slate-900 -ml-2"
+            className="h-8 text-sm font-semibold text-slate-700 hover:text-slate-900"
             onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
           >
             No. Antrean
@@ -74,10 +74,10 @@ export const createQueueColumns = ({
         const raw = row.getValue('queue_number');
         const formatted = formatQueueNumber(raw);
         return (
-          <div className="text-left">
+          <div className="flex justify-center">
             <Badge
               variant="outline"
-              className="bg-teal-50 text-teal-800 border-teal-300 px-2.5 py-1 font-mono text-sm font-bold tracking-wide shadow-none"
+              className="bg-teal-50 text-teal-800 border-teal-300 px-2.5 py-1 text-sm font-bold tracking-wide shadow-none whitespace-nowrap"
             >
               {formatted}
             </Badge>
@@ -90,12 +90,12 @@ export const createQueueColumns = ({
     columnHelper.accessor((row) => row.patient?.name || '', {
       id: 'patient_name',
       header: () => (
-        <div className="text-left font-semibold text-sm text-slate-700">
+        <div className="text-center font-semibold text-sm text-slate-700">
           Nama Pasien
         </div>
       ),
       cell: ({ row }) => (
-        <div className="font-semibold text-sm text-slate-900 text-left">
+        <div className="font-semibold text-sm text-slate-900 text-center">
           {row.original.patient?.name || '-'}
         </div>
       ),
@@ -105,12 +105,12 @@ export const createQueueColumns = ({
     columnHelper.accessor((row) => row.patient?.medical_record_number || '', {
       id: 'medical_record_number',
       header: () => (
-        <div className="text-left font-semibold text-sm text-slate-700">
+        <div className="text-center font-semibold text-sm text-slate-700">
           No. Rekam Medis
         </div>
       ),
       cell: ({ row }) => (
-        <div className="text-left font-mono font-medium text-sm text-slate-700">
+        <div className="text-center font-medium text-sm text-slate-700">
           {row.original.patient?.medical_record_number || '-'}
         </div>
       ),
@@ -120,14 +120,14 @@ export const createQueueColumns = ({
     columnHelper.accessor((row) => row.registration?.clinic_department || '', {
       id: 'clinic_department',
       header: () => (
-        <div className="text-left font-semibold text-sm text-slate-700">
+        <div className="text-center font-semibold text-sm text-slate-700">
           Poli Tujuan
         </div>
       ),
       cell: ({ row }) => {
         const dept = row.original.registration?.clinic_department;
         return (
-          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 text-left">
+          <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-700">
             <Building2 className="h-4 w-4 text-slate-400 shrink-0" />
             <span>{dept || '-'}</span>
           </div>
@@ -139,19 +139,19 @@ export const createQueueColumns = ({
     columnHelper.accessor((row) => row.doctor?.name || '', {
       id: 'doctor_name',
       header: () => (
-        <div className="text-left font-semibold text-sm text-slate-700">
+        <div className="text-center font-semibold text-sm text-slate-700">
           Dokter Pemeriksa
         </div>
       ),
       cell: ({ row }) => {
         const docName = row.original.doctor?.name;
         return docName ? (
-          <div className="flex items-center gap-1.5 text-sm font-medium text-slate-700 text-left">
+          <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-slate-700">
             <Stethoscope className="h-4 w-4 text-slate-400 shrink-0" />
             <span>{docName}</span>
           </div>
         ) : (
-          <div className="text-slate-400 font-medium text-sm text-left">-</div>
+          <div className="text-slate-400 font-medium text-sm text-center">-</div>
         );
       },
     }),

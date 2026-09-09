@@ -86,7 +86,7 @@ export function PatientDataTable({
                   className="border-slate-100 hover:bg-slate-50/80 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-slate-700">
+                    <TableCell key={cell.id} className="px-4 py-3.5 text-sm text-slate-700 text-center">
                       <table.FlexRender cell={cell} />
                     </TableCell>
                   ))}
