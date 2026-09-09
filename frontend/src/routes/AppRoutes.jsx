@@ -5,6 +5,10 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import DashboardPage from '@/pages/dashboard/DashboardPage';
 import ProtectedRoute from '@/routes/ProtectedRoute';
 
+import PatientsPage from '@/pages/patients/PatientsPage';
+import CreatePatientPage from '@/pages/patients/CreatePatientPage';
+import EditPatientPage from '@/pages/patients/EditPatientPage';
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -15,8 +19,10 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute allowedRoles={['admin', 'receptionist', 'doctor']} />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          {/* Placeholder for remaining modules */}
-          <Route path="/patients" element={<div className="p-4 bg-white rounded-lg border">Modul Pasien (Segera Hadir)</div>} />
+          {/* Patients Module */}
+          <Route path="/patients" element={<PatientsPage />} />
+          <Route path="/patients/new" element={<CreatePatientPage />} />
+          <Route path="/patients/:id/edit" element={<EditPatientPage />} />
           <Route path="/registrations" element={<div className="p-4 bg-white rounded-lg border">Modul Pendaftaran (Segera Hadir)</div>} />
           <Route path="/queues" element={<div className="p-4 bg-white rounded-lg border">Modul Antrean (Segera Hadir)</div>} />
           <Route path="/examination" element={<div className="p-4 bg-white rounded-lg border">Modul Pemeriksaan Dokter (SOAP) (Segera Hadir)</div>} />
