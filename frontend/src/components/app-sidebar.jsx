@@ -31,13 +31,12 @@ export function AppSidebar({ ...props }) {
   const navItems = React.useMemo(() => {
     const items = [];
 
-    if (user?.role !== 'doctor') {
-      items.push({
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutDashboard,
-      });
-    }
+    // Dashboard dapat diakses oleh ketiga role (admin, receptionist, doctor)
+    items.push({
+      title: 'Dashboard',
+      url: '/dashboard',
+      icon: LayoutDashboard,
+    });
 
     if (user?.role === 'admin' || user?.role === 'receptionist') {
       items.push(
